@@ -1,0 +1,172 @@
+// RotaryDial — reusable thermostat dial component
+//
+// Properties:
+//   current-temperature : float  — read-only sensor reading, shown on the arc
+//   setpoint            : float  — two-way bindable; drag the handle to adjust
+//   min-temperature     : float  — lower bound of the arc (default 5.0 °C)
+//   max-temperature     : float  — upper bound of the arc (default 30.0 °C)
+//
+// The arc spans 240° starting at 150° (lower-left) and ending at 30° (lower-right),
+// with the gap at the bottom. Clockwise = higher temperature.
+// Angles are measured clockwise from the positive-x axis (screen coords, y-down).
+
+export component RotaryDial inherits Rectangle {
+    // ── public properties ───────────────────────────────────────────────────
+    in property <float> current-temperature: 18.0;
+    in-out property <float> setpoint: 20.0;
+    in property <float> min-temperature: 5.0;
+    in property <float> max-temperature: 30.0;
+
+    // Colours
+    in property <color> track-colour: #333344;
+    in property <color> arc-colour: #ff6600;
+    in property <color> current-colour: #4488ff;
+    in property <color> handle-colour: #ffffff;
+    in property <color> text-colour: #ffffff;
+
+    min-width: 300px;
+    min-height: 300px;
+    background: transparent;
+
+    // ── layout constants ────────────────────────────────────────────────────
+    private property <length> cx: self.width / 2;
+    private property <length> cy: self.height / 2;
+    private property <length> radius: min(self.width, self.height) / 2 - 24px;
+    private property <length> track-width: 12px;
+
+    // Arc geometry: 240° span, start at 150°, end at 30°
+    private property <float> start-deg: 150.0;
+    private property <float> span-deg: 240.0;
+
+    // ── derived angles (degrees from positive-x, clockwise) ─────────────────
+    pure function temp-to-arc-deg(t: float) -> float {
+        root.start-deg + (t - root.min-temperature) / (root.max-temperature - root.min-temperature) * root.span-deg
+    }
+
+    private property <float> current-angle: root.temp-to-arc-deg(root.current-temperature);
+    private property <float> setpoint-angle: root.temp-to-arc-deg(root.setpoint);
+    private property <float> setpoint-arc-len: (root.setpoint - root.min-temperature) / (root.max-temperature - root.min-temperature) * root.span-deg;
+
+    // ── background track (full 240° arc) ────────────────────────────────────
+    // Path x/y are unitless floats within the path's coordinate space, so we
+    // divide lengths by 1px to obtain floats. cos/sin take angle type (n * 1deg).
+    Path {
+        x: 0; y: 0;
+        width: root.width; height: root.height;
+        stroke: root.track-colour;
+        stroke-width: root.track-width;
+        fill: transparent;
+
+        MoveTo {
+            x: root.cx / 1px + root.radius / 1px * cos(150deg);
+            y: root.cy / 1px + root.radius / 1px * sin(150deg);
+        }
+        ArcTo {
+            radius-x: root.radius / 1px;
+            radius-y: root.radius / 1px;
+            x-rotation: 0;
+            large-arc: true;
+            sweep: true;
+            x: root.cx / 1px + root.radius / 1px * cos(30deg);
+            y: root.cy / 1px + root.radius / 1px * sin(30deg);
+        }
+    }
+
+    // ── setpoint arc (from arc-start to setpoint handle) ────────────────────
+    Path {
+        x: 0; y: 0;
+        width: root.width; height: root.height;
+        stroke: root.arc-colour;
+        stroke-width: root.track-width;
+        fill: transparent;
+
+        MoveTo {
+            x: root.cx / 1px + root.radius / 1px * cos(150deg);
+            y: root.cy / 1px + root.radius / 1px * sin(150deg);
+        }
+        ArcTo {
+            radius-x: root.radius / 1px;
+            radius-y: root.radius / 1px;
+            x-rotation: 0;
+            large-arc: root.setpoint-arc-len > 180.0;
+            sweep: true;
+            x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg);
+            y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg);
+        }
+    }
+
+    // ── current temperature marker (blue dot) ───────────────────────────────
+    // Marker x/y use length arithmetic: radius (length) * cos(angle) = length
+    Rectangle {
+        width: 14px; height: 14px;
+        border-radius: 7px;
+        background: root.current-colour;
+        border-width: 2px;
+        border-color: #ffffff;
+        x: root.cx + root.radius * cos(root.current-angle * 1deg) - 7px;
+        y: root.cy + root.radius * sin(root.current-angle * 1deg) - 7px;
+    }
+
+    // ── setpoint handle (white circle, draggable) ────────────────────────────
+    Rectangle {
+        width: 22px; height: 22px;
+        border-radius: 11px;
+        background: root.handle-colour;
+        border-width: 2px;
+        border-color: root.arc-colour;
+        x: root.cx + root.radius * cos(root.setpoint-angle * 1deg) - 11px;
+        y: root.cy + root.radius * sin(root.setpoint-angle * 1deg) - 11px;
+    }
+
+    // ── centre display: setpoint ─────────────────────────────────────────────
+    Text {
+        x: root.cx - 50px;
+        y: root.cy - 36px;
+        width: 100px;
+        height: 72px;
+        text: root.setpoint + "°";
+        color: root.text-colour;
+        font-size: 48px;
+        font-weight: 700;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    // ── centre display: current temperature ─────────────────────────────────
+    Text {
+        x: root.cx - 50px;
+        y: root.cy + 22px;
+        width: 100px;
+        height: 24px;
+        text: "now  " + root.current-temperature + "°";
+        color: root.current-colour;
+        font-size: 14px;
+        horizontal-alignment: center;
+        vertical-alignment: center;
+    }
+
+    // ── drag interaction ─────────────────────────────────────────────────────
+    // atan2(dy, dx) returns an angle type; divide by 1deg to get a float in degrees.
+    // The arc runs from 150° to 390° (≡ 30°). We shift so arc-start = 0, then clamp.
+    // Threshold −60 splits the gap at 90° (bottom of circle, equidistant from both ends).
+    TouchArea {
+        x: 0; y: 0;
+        width: root.width; height: root.height;
+
+        moved => {
+            let dx = (self.mouse-x - root.cx) / 1px;
+            let dy = (self.mouse-y - root.cy) / 1px;
+            let angle-deg = atan2(dy, dx) / 1deg;
+            // Normalise to [0, 360)
+            let norm = angle-deg < 0.0 ? angle-deg + 360.0 : angle-deg;
+            // Shift so arc-start (150°) = 0; wrap gap's far half into upper range
+            let shifted = norm - root.start-deg;
+            let adj = shifted < -60.0 ? shifted + 360.0 : shifted;
+            // Clamp to valid arc range [0, span-deg]
+            let arc-pos = clamp(adj, 0.0, root.span-deg);
+            // Map to temperature, round to nearest 0.5°
+            let raw = root.min-temperature + arc-pos / root.span-deg * (root.max-temperature - root.min-temperature);
+            root.setpoint = round(raw * 2.0) / 2.0;
+        }
+    }
+}

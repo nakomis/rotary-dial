@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "rotary-dial",
+    "test-app",
+]
+resolver = "2"
