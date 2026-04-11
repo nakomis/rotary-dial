@@ -45,7 +45,7 @@ export component RotaryDial inherits Rectangle {
 
     private property <float> current-angle: root.temp-to-arc-deg(root.current-temperature);
     private property <float> setpoint-angle: root.temp-to-arc-deg(root.setpoint);
-    private property <float> setpoint-arc-len: (root.setpoint - root.min-temperature) / (root.max-temperature - root.min-temperature) * root.span-deg;
+	
 
     // ── background track (full 240° arc) ────────────────────────────────────
     // Path x/y are unitless floats within the path's coordinate space, so we
@@ -72,7 +72,8 @@ export component RotaryDial inherits Rectangle {
         }
     }
 
-    // ── setpoint arc (from arc-start to setpoint handle) ────────────────────
+    // ── setpoint arc — split at 270° to avoid large-arc ambiguity ───────────
+    // Segment 1: left half 150° → min(setpoint-angle, 270°), always large-arc=false
     Path {
         x: 0; y: 0;
         width: root.width; height: root.height;
@@ -88,7 +89,31 @@ export component RotaryDial inherits Rectangle {
             radius-x: root.radius / 1px;
             radius-y: root.radius / 1px;
             x-rotation: 0;
-            large-arc: root.setpoint-arc-len > 180.0;
+            large-arc: false;
+            sweep: true;
+            x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle < 270.0 ? root.setpoint-angle * 1deg : 270deg);
+            y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle < 270.0 ? root.setpoint-angle * 1deg : 270deg);
+        }
+    }
+
+    // Segment 2: right half 270° → setpoint-angle, only when setpoint-angle > 270°
+    Path {
+        visible: root.setpoint-angle > 270.0;
+        x: 0; y: 0;
+        width: root.width; height: root.height;
+        stroke: root.arc-colour;
+        stroke-width: root.track-width;
+        fill: transparent;
+
+        MoveTo {
+            x: root.cx / 1px + root.radius / 1px * cos(270deg);
+            y: root.cy / 1px + root.radius / 1px * sin(270deg);
+        }
+        ArcTo {
+            radius-x: root.radius / 1px;
+            radius-y: root.radius / 1px;
+            x-rotation: 0;
+            large-arc: false;
             sweep: true;
             x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg);
             y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg);
