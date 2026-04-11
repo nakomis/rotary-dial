@@ -71,9 +71,9 @@ export component RotaryDial inherits Rectangle {
         }
     }
 
-    // ── setpoint arc — split at 270° to avoid large-arc ambiguity ───────────
-    // Segment 1: left half 150° → min(setpoint-angle, 270°), always large-arc=false
+    // ── setpoint arc ── split by span (≤180°/ >180°) to correctly set large-arc flag
     Path {
+        visible: root.setpoint-angle <= 330.0;
         x: 0; y: 0;
         width: root.width; height: root.height;
         stroke: root.arc-colour;
@@ -90,14 +90,13 @@ export component RotaryDial inherits Rectangle {
             x-rotation: 0;
             large-arc: false;
             sweep: true;
-            x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle < 270.0 ? root.setpoint-angle * 1deg : 270deg);
-            y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle < 270.0 ? root.setpoint-angle * 1deg : 270deg);
+            x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg);
+            y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg);
         }
     }
 
-    // Segment 2: right half 270° → setpoint-angle, only when setpoint-angle > 270°
     Path {
-        visible: root.setpoint-angle > 270.0;
+        visible: root.setpoint-angle > 330.0;
         x: 0; y: 0;
         width: root.width; height: root.height;
         stroke: root.arc-colour;
@@ -105,14 +104,14 @@ export component RotaryDial inherits Rectangle {
         fill: transparent;
 
         MoveTo {
-            x: root.cx / 1px + root.radius / 1px * cos(270deg);
-            y: root.cy / 1px + root.radius / 1px * sin(270deg);
+            x: root.cx / 1px + root.radius / 1px * cos(150deg);
+            y: root.cy / 1px + root.radius / 1px * sin(150deg);
         }
         ArcTo {
             radius-x: root.radius / 1px;
             radius-y: root.radius / 1px;
             x-rotation: 0;
-            large-arc: false;
+            large-arc: true;
             sweep: true;
             x: root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg);
             y: root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg);
