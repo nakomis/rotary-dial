@@ -1,3 +1,6 @@
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-unknown-linux-gnu-gcc"
+
 [package]
 name = "test-app"
 version = "0.1.0"
