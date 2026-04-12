@@ -45,7 +45,7 @@ impl RotaryDial {
                 points: arc_points(cx, cy, radius, 150.0, setpoint_angle, 64),
                 closed: false,
                 fill: Color32::TRANSPARENT,
-                stroke: PathStroke::new(12.0, Color32::from_rgb(0xff, 0x66, 0x00)),
+                stroke: PathStroke::new(12.0, Color32::from_rgb(0x3a, 0x6a, 0x8a)),
             }));
         }
 
@@ -54,10 +54,10 @@ impl RotaryDial {
         painter.circle_filled(cur_pos, 7.0, Color32::from_rgb(0x44, 0x88, 0xff));
         painter.circle_stroke(cur_pos, 7.0, Stroke::new(2.0, Color32::WHITE));
 
-        // Setpoint handle (white circle, orange border)
+        // Setpoint handle (white circle, dark blue-grey border)
         let handle_pos = point_on_arc(cx, cy, radius, setpoint_angle);
         painter.circle_filled(handle_pos, 11.0, Color32::WHITE);
-        painter.circle_stroke(handle_pos, 11.0, Stroke::new(2.0, Color32::from_rgb(0xff, 0x66, 0x00)));
+        painter.circle_stroke(handle_pos, 11.0, Stroke::new(2.0, Color32::from_rgb(0x3a, 0x6a, 0x8a)));
 
         // Centre: setpoint value
         painter.text(
