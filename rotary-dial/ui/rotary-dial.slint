@@ -50,16 +50,21 @@ export component RotaryDial inherits Rectangle {
     // Path x/y are unitless floats within the path's coordinate space, so we
     // divide lengths by 1px to obtain floats. cos/sin take angle type (n * 1deg).
     Path {
-        x: 0; y: 0;
-        width: root.width; height: root.height;
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
         stroke: root.track-colour;
         stroke-width: root.track-width;
         fill: transparent;
+        viewbox-height: root.height / 1px;
+        viewbox-width: root.width / 1px;
 
         MoveTo {
             x: root.cx / 1px + root.radius / 1px * cos(150deg);
             y: root.cy / 1px + root.radius / 1px * sin(150deg);
         }
+
         ArcTo {
             radius-x: root.radius / 1px;
             radius-y: root.radius / 1px;
@@ -78,23 +83,23 @@ export component RotaryDial inherits Rectangle {
     // on every change. Large-arc flag switches at 180° span (≈ 23.75 °C).
     Path {
         visible: root.setpoint > root.min-temperature;
-        x: 0; y: 0;
-        width: root.width; height: root.height;
+        x: 0;
+        y: 0;
+        viewbox-height: root.height / 1px;
+        viewbox-width: root.width / 1px;
+        width: root.width;
+        height: root.height;
         stroke: root.arc-colour;
         stroke-width: root.track-width;
         fill: transparent;
-        commands: "M " + (root.cx / 1px + root.radius / 1px * cos(150deg)) + " "
-                + (root.cy / 1px + root.radius / 1px * sin(150deg))
-                + " A " + (root.radius / 1px) + " " + (root.radius / 1px)
-                + " 0 " + (root.setpoint-angle - root.start-deg > 180.0 ? "1" : "0") + " 1 "
-                + (root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg)) + " "
-                + (root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg));
+        commands: "M " + (root.cx / 1px + root.radius / 1px * cos(150deg)) + " " + (root.cy / 1px + root.radius / 1px * sin(150deg)) + " A " + (root.radius / 1px) + " " + (root.radius / 1px) + " 0 " + (root.setpoint-angle - root.start-deg > 180.0 ? "1" : "0") + " 1 " + (root.cx / 1px + root.radius / 1px * cos(root.setpoint-angle * 1deg)) + " " + (root.cy / 1px + root.radius / 1px * sin(root.setpoint-angle * 1deg));
     }
 
     // ── current temperature marker (blue dot) ───────────────────────────────
     // Marker x/y use length arithmetic: radius (length) * cos(angle) = length
     Rectangle {
-        width: 14px; height: 14px;
+        width: 14px;
+        height: 14px;
         border-radius: 7px;
         background: root.current-colour;
         border-width: 2px;
@@ -105,7 +110,8 @@ export component RotaryDial inherits Rectangle {
 
     // ── setpoint handle (white circle, draggable) ────────────────────────────
     Rectangle {
-        width: 22px; height: 22px;
+        width: 22px;
+        height: 22px;
         border-radius: 11px;
         background: root.handle-colour;
         border-width: 2px;
@@ -146,8 +152,10 @@ export component RotaryDial inherits Rectangle {
     // The arc runs from 150° to 390° (≡ 30°). We shift so arc-start = 0, then clamp.
     // Threshold −60 splits the gap at 90° (bottom of circle, equidistant from both ends).
     TouchArea {
-        x: 0; y: 0;
-        width: root.width; height: root.height;
+        x: 0;
+        y: 0;
+        width: root.width;
+        height: root.height;
 
         moved => {
             let dx = (self.mouse-x - root.cx) / 1px;
