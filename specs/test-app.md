@@ -1,3 +1,19 @@
+# Spec: test-app eframe harness
+
+## Target file
+`test-app/src/main.rs`
+
+## Action
+Replace entire file
+
+## Description
+A minimal eframe desktop application that exercises the `RotaryDial` widget from the
+`rotary-dial` library crate. Shows one dial centred in the window, with the setpoint
+printed to stdout on every change. Dark background.
+
+## Implementation
+
+```rust
 use eframe::egui;
 use rotary_dial::RotaryDial;
 
@@ -18,7 +34,7 @@ impl App {
 impl eframe::App for App {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
         egui::CentralPanel::default()
-            .frame(egui::Frame::new().fill(egui::Color32::from_rgb(0x1a, 0x1a, 0x2e)))
+            .frame(egui::Frame::none().fill(egui::Color32::from_rgb(0x1a, 0x1a, 0x2e)))
             .show(ctx, |ui| {
                 ui.centered_and_justified(|ui| {
                     let new_setpoint = self.dial.show(ui);
@@ -38,9 +54,14 @@ fn main() -> eframe::Result<()> {
             .with_title("Rotary Dial Test"),
         ..Default::default()
     };
-    eframe::run_native(
-        "Rotary Dial Test",
-        options,
-        Box::new(|cc| Ok(Box::new(App::new(cc)))),
-    )
+    eframe::run_native("Rotary Dial Test", options, Box::new(|cc| Ok(Box::new(App::new(cc)))))
 }
+```
+
+## Dependencies
+- `eframe = "0.31"` (already in Cargo.toml)
+- `rotary-dial = { path = "../rotary-dial" }` (already in Cargo.toml)
+
+## Constraints
+- No additional crates
+- Keep it minimal — this is a test harness only
