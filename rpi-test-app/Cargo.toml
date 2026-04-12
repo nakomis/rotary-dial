@@ -1,0 +1,12 @@
+[package]
+name = "rpi-test-app"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "rpi-test-app"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.31", default-features = false, features = ["glow"] }
+rotary-dial = { path = "../rotary-dial" }
