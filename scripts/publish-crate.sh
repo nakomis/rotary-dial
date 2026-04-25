@@ -35,7 +35,7 @@ TOKEN=$(AWS_PROFILE="$AWS_PROFILE" aws codeartifact get-authorization-token \
 export CARGO_REGISTRIES_NAKOMIS_CODEARTIFACT_INDEX="$INDEX"
 export CARGO_REGISTRIES_NAKOMIS_CODEARTIFACT_TOKEN="Bearer ${TOKEN}"
 
-echo "==> Publishing rotary-dial to nakomis-codeartifact (${ENV})..."
-cargo publish -p rotary-dial --registry nakomis-codeartifact
+echo "==> Publishing rotary-dial to nakomis_codeartifact (${ENV})..."
+cargo publish -p rotary-dial --registry nakomis_codeartifact
 
 echo "==> Done."
