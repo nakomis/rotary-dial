@@ -1,0 +1,12 @@
+[package]
+name = "test-app"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "test-app"
+path = "src/main.rs"
+
+[dependencies]
+eframe = "0.31"
+rotary-dial = { path = "../rotary-dial" }
