@@ -4,24 +4,20 @@
 # Usage:
 #   ./scripts/publish-crate.sh           — publish to sandbox
 #   ./scripts/publish-crate.sh prod      — publish to prod
-#
-# Authentication is handled by cargo:token-from-stdout in .cargo/config.toml.
-# The script sets AWS_PROFILE so no manual profile selection is needed.
 set -e
 
 ENV="${1:-sandbox}"
 
 case "$ENV" in
   prod)
-    export AWS_PROFILE=nakom.is
-    CARGO_ARGS=(publish -p rotary-dial --registry nakomis_codeartifact
-      --config "registries.nakomis_codeartifact.index='sparse+https://artifacts.nakomis.com/cargo/cargo/'"
-      --config "registries.nakomis_codeartifact.credential-provider='cargo:token-from-stdout aws codeartifact get-authorization-token --domain nakomis --domain-owner 637423226886 --region eu-west-2 --query authorizationToken --output text'"
-    )
+    DOMAIN=nakomis
+    DOMAIN_OWNER=637423226886
+    INDEX="sparse+https://artifacts.nakomis.com/cargo/cargo/"
     ;;
   sandbox)
-    export AWS_PROFILE=nakom.is-sandbox
-    CARGO_ARGS=(publish -p rotary-dial --registry nakomis_codeartifact)
+    DOMAIN=nakomis-sandbox
+    DOMAIN_OWNER=975050268859
+    INDEX="sparse+https://artifacts.sandbox.nakomis.com/cargo/cargo/"
     ;;
   *)
     echo "Unknown environment: '$ENV'. Use 'sandbox' (default) or 'prod'." >&2
@@ -29,6 +25,10 @@ case "$ENV" in
     ;;
 esac
 
+CRED="cargo:token-from-stdout aws codeartifact get-authorization-token --domain ${DOMAIN} --domain-owner ${DOMAIN_OWNER} --region eu-west-2 --query authorizationToken --output text"
+
 echo "==> Publishing rotary-dial to nakomis_codeartifact (${ENV})..."
-cargo "${CARGO_ARGS[@]}"
+cargo publish -p rotary-dial --registry nakomis_codeartifact \
+  --config "registries.nakomis_codeartifact.index='${INDEX}'" \
+  --config "registries.nakomis_codeartifact.credential-provider='${CRED}'"
 echo "==> Done."

@@ -1,7 +1,3 @@
-[registries.nakomis_codeartifact]
-index = "sparse+https://artifacts.sandbox.nakomis.com/cargo/cargo/"
-credential-provider = "cargo:token-from-stdout aws codeartifact get-authorization-token --domain nakomis-sandbox --domain-owner 975050268859 --region eu-west-2 --query authorizationToken --output text"
-
 # Your existing x86 config
 [target.x86_64-unknown-linux-gnu]
 linker = "x86_64-unknown-linux-gnu-gcc"
