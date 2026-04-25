@@ -106,3 +106,13 @@ Check status / logs:
 sudo systemctl status thermostat
 sudo journalctl -u thermostat -f
 ```
+
+## Licence
+
+[CC0 1.0 Universal](LICENSE) — public domain. Do whatever you like with it.
+
+## Support
+
+If you find this useful, a small donation is very welcome:
+
+[![Donate via PayPal](https://www.paypalobjects.com/en_GB/i/btn/btn_donate_LG.gif)](https://www.paypal.com/donate?hosted_button_id=Q3BESC73EWVNN&custom=rotary-dial)
