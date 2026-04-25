@@ -2,6 +2,12 @@
 name = "rotary-dial"
 version = "0.1.0"
 edition = "2021"
+description = "Reusable egui rotary dial widget for thermostat UIs"
+license = "CC0-1.0"
+repository = "https://github.com/nakomis/rotary-dial"
+homepage = "https://github.com/nakomis/rotary-dial"
+keywords = ["egui", "thermostat", "dial", "widget", "raspberry-pi"]
+categories = ["gui"]
 
 [dependencies]
 egui = "0.31"
