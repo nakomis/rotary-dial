@@ -21,7 +21,8 @@ impl RotaryDial {
 
     /// Draw the dial and return the (possibly updated) setpoint.
     pub fn show(&mut self, ui: &mut Ui) -> f32 {
-        let (_id, rect) = ui.allocate_space(Vec2::splat(300.0));
+        let size = ui.available_size().min_elem().max(100.0);
+        let (_id, rect) = ui.allocate_space(Vec2::splat(size));
         let response = ui.allocate_rect(rect, Sense::drag());
 
         let cx = rect.center().x;
