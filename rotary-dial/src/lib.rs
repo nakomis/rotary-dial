@@ -78,8 +78,9 @@ impl RotaryDial {
             Color32::from_rgb(0x44, 0x88, 0xff),
         );
 
-        // Drag interaction
-        if response.dragged() {
+        // Drag interaction — skip the first frame so that a tap that also opens the
+        // widget doesn't move the setpoint before the user has intentionally dragged.
+        if response.dragged() && !response.drag_started() {
             if let Some(pos) = response.interact_pointer_pos() {
                 let dx = pos.x - cx;
                 let dy = pos.y - cy;
