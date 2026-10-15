@@ -21,7 +21,8 @@ impl RotaryDial {
 
     /// Draw the dial and return the (possibly updated) setpoint.
     pub fn show(&mut self, ui: &mut Ui) -> f32 {
-        let (_id, rect) = ui.allocate_space(Vec2::splat(300.0));
+        let size = ui.available_size().min_elem().max(100.0);
+        let (_id, rect) = ui.allocate_space(Vec2::splat(size));
         let response = ui.allocate_rect(rect, Sense::drag());
 
         let cx = rect.center().x;
@@ -77,8 +78,9 @@ impl RotaryDial {
             Color32::from_rgb(0x44, 0x88, 0xff),
         );
 
-        // Drag interaction
-        if response.dragged() {
+        // Drag interaction — skip the first frame so that a tap that also opens the
+        // widget doesn't move the setpoint before the user has intentionally dragged.
+        if response.dragged() && !response.drag_started() {
             if let Some(pos) = response.interact_pointer_pos() {
                 let dx = pos.x - cx;
                 let dy = pos.y - cy;
